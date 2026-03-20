@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <title>ทำแบบสอบถาม</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: sans-serif; margin: 32px; }
+    .question { font-weight: 700; margin-bottom: 10px; }
+    textarea, input[type="text"] { width: 100%; max-width: 680px; padding: 10px; }
+    button { padding: 8px 16px; margin-top: 12px; cursor: pointer; }
+    .topbar { margin-bottom: 16px; color: #555; }
+  </style>
+</head>
+<body>
+  <h1>ทำแบบสอบถาม</h1>
+  <div class="topbar">
+    <a href="builder.htmlน้าเพิ่มคำถาม</a>
+  </div>
+
+  <div id="survey" style="display:none;">
+    <div id="progress" class="muted"></div>
+    <div class="question" id="qText"></div>
+    <div id="inputWrap"></div>
+    <button id="nextBtn">ถัดไป</button>
+  </div>
+
+  <div id="empty" style="display:none;">
+    <p>ไม่พบคำถามในระบบ กรุณากลับไป builder.htmlหน้าเพิ่มคำถาม</a> เพื่อสร้างคำถามก่อน</p>
+  </div>
+
+  <script>
+    const STORAGE_Q = 'survey_questions';
+    const STORAGE_A = 'survey_answers';
+
+    const questions = (() => {
+      try { return JSON.parse(localStorage.getItem(STORAGE_Q) || '[]'); }
+      catch(e){ return []; }
+    })();
+
+    let current = 0;
+    const answers = [];
+
+    const surveyEl = document.getElementById('survey');
+    const emptyEl  = document.getElementById('empty');
+    const qTextEl  = document.getElementById('qText');
+    const inputWrap= document.getElementById('inputWrap');
+    const progress = document.getElementById('progress');
+    const nextBtn  = document.getElementById('nextBtn');
+
+    if (!questions.length) {
+      emptyEl.style.display = 'block';
+    } else {
+      surveyEl.style.display = 'block';
+      showQuestion();
+    }
+
+    function showQuestion() {
+      progress.textContent = `ข้อที่ ${current+1} / ${questions.length}`;
+      qTextEl.textContent = questions[current];
+      inputWrap.innerHTML = `
+        <textarea id="answer" rows="4" placeholder="พิมพ์คำตอบที่นี่"></textarea>
+      `;
+      document.getElementById('answer').focus();
+      nextBtn.textContent = (current === questions.length - 1) ? 'ส่งคำตอบ' : 'ถัดไป';
+    }
+
+    function nextQuestion() {
+      const ans = (document.getElementById('answer').value || '').trim();
+      answers.push({ q: questions[current], a: ans });
+      current++;
+      if (current < questions.length) {
+        showQuestion();
+      } else {
+        // บันทึกคำตอบแล้วไปหน้าสรุป
+        localStorage.setItem(STORAGE_A, JSON.stringify(answers));
+        location.href = 'result.html';
+      }
+    }
+
+    nextBtn.addEventListener('click', nextQuestion);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { // Ctrl/Cmd + Enter
+        nextQuestion();
+      }
+    });
+  </script>
+</body>
+</html>
