@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <title>สรุปคำตอบแบบสอบถาม</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: sans-serif; margin: 32px; }
+    ul { padding-left: 18px; }
+    li { margin: 10px 0; }
+    .q { font-weight: 700; }
+    .a { white-space: pre-wrap; color: #333; }
+    button { padding: 8px 16px; margin-right: 10px; cursor: pointer; }
+    .muted { color: #666; }
+  </style>
+</head>
+<body>
+  <h1>สรุปคำตอบของคุณ</h1>
+  <div id="content"></div>
+  <div style="margin-top: 16px;">
+    <button id="restart">เริ่มทำแบบสอบถามใหม่</button>
+    builder.html<button>กลับไปแก้ไขคำถาม</button></a>
+  </div>
+  <p class="muted" style="margin-top:10px;">
+    * ระบบเก็บคำถามไว้ใน localStorage คีย์ <code>survey_questions</code> และคำตอบไว้ที่ <code>survey_answers</code>
+  </p>
+
+  <script>
+    const STORAGE_A = 'survey_answers';
+    const content = document.getElementById('content');
+    let answers = [];
+    try { answers = JSON.parse(localStorage.getItem(STORAGE_A) || '[]'); } catch(e){ answers = []; }
+
+    if (!answers.length) {
+      content.innerHTML = '<p>ยังไม่มีคำตอบ ให้กลับไปทำแบบสอบถามที่ survey.htmlsurvey.html</a></p>';
+    } else {
+      const html = `
+        <ul>
+          ${answers.map(item => `
+            <li>
+              <div class="q">${item.q}</div>
+              <div class="a">${(item.a || '').replace(/</g,'&lt;')}</div>
+            </li>
+          `).join('')}
+        </ul>
+      `;
+      content.innerHTML = html;
+    }
+
+    document.getElementById('restart').addEventListener('click', () => {
+      // ลบเฉพาะคำตอบ เพื่อเริ่มทำใหม่ โดยยังเก็บคำถามเดิมไว้
+      localStorage.removeItem(STORAGE_A);
+      location.href = 'survey.html';
+    });
+  </script>
+</body>
+</html>
