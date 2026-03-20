@@ -58,7 +58,7 @@
 
   try {
     // ✅ ตรวจสอบสิทธิ์จาก Firestore
-    const doc = await db.collection("admins").doc(user.uid).get();
+    const doc = await db.collection("admin").doc(user.uid).get();
     if (!doc.exists) {
       guard.textContent = 'บัญชีนี้ไม่มีสิทธิ์เข้าถึง'; 
       return;
