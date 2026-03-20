@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="th">
+<head> 
+  <meta charset="UTF-8">
+  <title>สร้างแบบสอบถามตัวตน</title>
+  <style>
+    body { font-family: sans-serif; margin: 40px;
+}
+    .question { margin-bottom: 20px; font-weight: bold;
+}
+    button { padding: 8px 16px; margin-top: 10px;
+}
+    #builder { margin-bottom: 30px;
+}
+  </style>
+</head>
+<body>
+  <h1>ระบบสร้างแบบสอบถาม</h1>
+
+  <!-- ส่วนสร้างคำถาม -->
+  <div id="builder">
+    <h2>เพิ่มคำถามใหม่</h2>
+    <input type="text" id="newQuestion" placeholder="พิมพ์คำถามที่นี่" size="50">
+    <button onclick="addQuestion()">เพิ่มคำถาม</button>
+    <ul id="questionList"></ul>
+    <button onclick="startSurvey()">เริ่มทำแบบสอบถาม</button>
+  </div>
+
+  <!-- ส่วนทำแบบสอบถาม -->
+  <div id="survey" style="display:none;">
+    <div class="question" id="question"></div>
+    <textarea id="answer" rows="3" cols="40" placeholder="พิมพ์คำตอบที่นี่"></textarea>
+    <br>
+    <button onclick="nextQuestion()">ถัดไป</button>
+  </div>
+
+  <!-- ส่วนสรุปผล -->
+  <div id="result" style="display:none;"></div>
+
+  <script>
+    let questions = [];
+    let current = 0;
+    let answers = [];
+
+    function addQuestion() {
+      const q = document.getElementById("newQuestion").value;
+      if(q.trim() !== "") {
+        questions.push(q);
+        document.getElementById("questionList").innerHTML = 
+          questions.map(item => "<li>"+item+"</li>").join("");
+        document.getElementById("newQuestion").value = "";
+  }
+}
+
+    function startSurvey() {
+      if(questions.length === 0) {
+        alert("กรุณาเพิ่มคำถามก่อนเริ่มทำแบบสอบถาม");
+        return;
+  }
+      document.getElementById("builder").style.display = "none";
+      document.getElementById("survey").style.display = "block";
+      showQuestion();
+}
+
+    function showQuestion() {
+      document.getElementById("question").innerText = questions[current
+  ];
+      document.getElementById("answer").value = "";
+}
+
+    function nextQuestion() {
+      const ans = document.getElementById("answer").value;
+      answers.push({q: questions[current
+    ], a: ans
+  });
+      current++;
+      if (current < questions.length) {
+        showQuestion();
+  } else {
+        document.getElementById("survey").style.display = "none";
+        document.getElementById("result").style.display = "block";
+        document.getElementById("result").innerHTML = 
+          "<h2>สรุปคำตอบของคุณ:</h2>" +
+          "<ul>" + answers.map(item => "<li><b>"+item.q+"</b><br>"+item.a+"</li>").join("") + "</ul>";
+  }
+}
+  </script>
+</body>
+</html>
