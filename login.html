@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <title>เข้าสู่ระบบเจ้าของ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 28px; max-width: 520px; }
+    input { width:100%; padding:10px; margin:6px 0; border:1px solid #ccc; border-radius:8px; }
+    button { padding:10px 16px; border:none; background:#111; color:#fff; border-radius:8px; cursor:pointer; }
+    .muted{ color:#666; font-size:13px; }
+  </style>
+  <script src="assets/firebase.js"></script>
+</head>
+<body>
+  <h1>เข้าสู่ระบบ</h1>
+  <input id="email" type="email" placeholder="อีเมล" />
+  <input id="pw" type="password" placeholder="รหัสผ่าน" />
+  <button id="loginBtn">เข้าสู่ระบบ</button>
+  <p class="muted">* เฉพาะเจ้าของระบบเท่านั้น</p>
+
+  <script>
+    document.getElementById('loginBtn').addEventListener('click', async () => {
+      const email = document.getElementById('email').value.trim();
+      const pw = document.getElementById('pw').value;
+      try {
+        await auth.signInWithEmailAndPassword(email, pw);
+        location.href = 'admin.html';
+      } catch (e) {
+        alert(e.message);
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <title>ทำแบบสอบถาม</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 28px; max-width: 760px; }
+    .q { font-weight:700; margin: 16px 0 8px; }
+    .opt { padding:10px 12px; border:1px solid #ccc; border-radius:8px; margin:6px 6px 6px 0; display:inline-block; cursor:pointer; }
+    .opt.selected { background:#111; color:#fff; border-color:#111; }
+    textarea, input[type="text"] { width:100%; padding:10px; border:1px solid #ccc; border-radius:8px; }
+    .actions { margin-top:18px; display:flex; gap:10px; }
+    .btn { padding:10px 16px; background:#111; color:#fff; border:none; border-radius:8px; cursor:pointer; }
+    .muted { color:#666; font-size:13px; }
+  </style>
+  <script src="assets/firebase.js"></script>
+</head>
+<body>
+  <h1>ทำแบบสอบถาม</h1>
+  <p class="muted">
+    * หมายเหตุ: ไม่มีการเก็บข้อมูลส่วนตัวอ่อนไหว คำตอบใช้เพื่อทำความเข้าใจแนวคิดเท่านั้น
+  </p>
+
+  <div id="app"></div>
+  <div class="actions">
+    <button class="btn" id="nextBtn">ถัดไป</button>
+  </div>
+
+  <script>
+    const app = document.getElementById('app');
+    const nextBtn = document.getElementById('nextBtn');
+
+    let questions = [];
+    let current = 0;
+    const answers = []; // {qid, text, type, answer}
+
+    // โหลดคำถามที่ active
+    db.collection('questions').where('active', '==', true).orderBy('createdAt', 'asc')
+      .get().then(snap => {
+        questions = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+        if (!questions.length) {
+          app.innerHTML = '<p>ยังไม่มีคำถามที่เปิดใช้งาน</p>';
+          nextBtn.disabled = true;
+          return;
+        }
+        render();
+      });
+
+    function render() {
+      const q = questions[current];
+      let html = `<div class="q">${current+1}. ${q.text}</div>`;
+      if (q.type === 'choice' && Array.isArray(q.options)) {
+        html += `<div id="opts">` + q.options.map(opt =>
+          `<span class="opt" data-v="${escapeHtml(opt)}">${escapeHtml(opt)}</span>`
+        ).join('') + `</div>`;
+      } else {
+        html += `<textarea id="ans" rows="4" placeholder="พิมพ์คำตอบของคุณ"></textarea>`;
+      }
+      app.innerHTML = html;
+
+      const opts = document.querySelectorAll('.opt');
+      opts.forEach(el => el.addEventListener('click', () => {
+        opts.forEach(x => x.classList.remove('selected'));
+        el.classList.add('selected');
+      }));
+      nextBtn.textContent = (current === questions.length - 1) ? 'ส่งคำตอบ' : 'ถัดไป';
+    }
+
+    nextBtn.addEventListener('click', async () => {
+      const q = questions[current];
+      let ansVal = '';
+      if (q.type === 'choice') {
+        const sel = document.querySelector('.opt.selected');
+        ansVal = sel ? sel.dataset.v : '';
+      } else {
+        ansVal = (document.getElementById('ans')?.value || '').trim();
+      }
+      answers.push({ qid:q.id, text:q.text, type:q.type, answer:ansVal });
+
+      current++;
+      if (current < questions.length) {
+        render();
+      } else {
+        // บันทึกลง Firestore (ถ้าต้องการ)
+        // await db.collection('responses').add({
+        //   answers,
+        //   createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        //   clientInfo: { ua:navigator.userAgent }
+        // });
+
+        // === ส่งแจ้งเตือนไป LINE ผ่าน Cloud Function (แก้ URL โครงการคุณ) ===
+        const payload = {
+          title: "มีคำตอบแบบสอบถามใหม่ 📝",
+          answers: answers.map(x => ({ q: x.text, a: x.answer }))
+        };
+
+        fetch("https://asia-southeast1-<YOUR_PROJECT_ID>.cloudfunctions.net/notifyLine", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        }).catch(()=>{});
+
+        app.innerHTML = '<h2>ขอบคุณสำหรับคำตอบ</h2><p>บันทึกเรียบร้อย</p>';
+        nextBtn.style.display = 'none';
+      }
+    });
+
+    function escapeHtml(s=''){ return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',''':'&#39;'}[m])); }
+  </script>
+</body>
+</html>

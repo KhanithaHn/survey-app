@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <title>จัดการคำถาม (เจ้าของ)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: system-ui, sans-serif; margin:28px; max-width:920px; }
+    .row { display:flex; gap:12px; flex-wrap: wrap; }
+    input, textarea, select { padding:10px; border:1px solid #ccc; border-radius:8px; }
+    input[type="text"], textarea { width:100%; max-width:560px; }
+    button { padding:10px 16px; border:none; border-radius:8px; background:#111; color:#fff; cursor:pointer; }
+    table { border-collapse: collapse; margin-top:16px; width:100%; }
+    th, td { border:1px solid #ddd; padding:8px; vertical-align: top; }
+    .muted{ color:#666; font-size:13px; }
+  </style>
+  <script src="assets/firebase.js"></script>
+</head>
+<body>
+  <h1>จัดการคำถาม</h1>
+  <div id="guard" class="muted">กำลังตรวจสิทธิ์...</div>
+
+  <div id="panel" style="display:none;">
+    <div class="row">
+      <select id="type">
+        <option value="choice">ตัวเลือก (ปุ่ม)</option>
+        <option value="text">ข้อความ (ช่องกรอก)</option>
+      </select>
+      <input id="text" type="text" placeholder="พิมพ์คำถาม" />
+      <input id="opts" type="text" placeholder="ตัวเลือก (คั่นด้วย | เช่น ใช่|ไม่ใช่)" />
+      <button id="addBtn">เพิ่มคำถาม</button>
+      <button id="logoutBtn" style="background:#c00;">ออกจากระบบ</button>
+    </div>
+
+    <table id="tbl">
+      <thead>
+        <tr><th>คำถาม</th><th>ประเภท</th><th>ตัวเลือก</th><th>สถานะ</th><th>จัดการ</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <p class="muted">* สถานะ “เปิดใช้งาน” เท่านั้นจึงจะแสดงในหน้าทำแบบสอบถาม</p>
+  </div>
+
+  <script>
+    auth.onAuthStateChanged(async user => {
+      const guard = document.getElementById('guard');
+      const panel = document.getElementById('panel');
+
+      if (!user) { guard.textContent = 'กรุณาเข้าสู่ระบบก่อน'; return; }
+      if (user.email !== 'YOUR_OWNER_EMAIL@example.com') {
+        guard.textContent = 'บัญชีนี้ไม่มีสิทธิ์เข้าถึง'; return;
+      }
+      guard.style.display = 'none'; panel.style.display = 'block';
+      wire(); load();
+    });
+
+    document.getElementById('logoutBtn').onclick = () => auth.signOut().then(()=>location.href='login.html');
+
+    function wire(){
+      document.getElementById('addBtn').addEventListener('click', async () => {
+        const type = document.getElementById('type').value;
+        const text = document.getElementById('text').value.trim();
+        const opts = document.getElementById('opts').value.trim();
+        if (!text) return alert('กรุณาพิมพ์คำถาม');
+
+        const payload = {
+          text, type,
+          options: (type==='choice' ? opts.split('|').map(s=>s.trim()).filter(Boolean) : []),
+          active: false,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        await db.collection('questions').add(payload);
+        document.getElementById('text').value=''; document.getElementById('opts').value='';
+        load();
+      });
+    }
+
+    async function load(){
+      const tbody = document.querySelector('#tbl tbody');
+      const snap = await db.collection('questions').orderBy('createdAt','asc').get();
+      tbody.innerHTML = snap.docs.map(d => {
+        const q = d.data();
+        return `<tr>
+          <td>${escapeHtml(q.text)}</td>
+          <td>${q.type}</td>
+          <td>${Array.isArray(q.options)? q.options.map(escapeHtml).join(', '):''}</td>
+          <td>${q.active ? 'เปิดใช้งาน' : 'ปิดอยู่'}</td>
+          <td>
+            <button onclick="toggleActive('${d.id}', ${!q.active})">${q.active?'ปิดการแสดง':'เปิดการแสดง'}</button>
+            <button onclick="delQ('${d.id}')" style="background:#c00;">ลบ</button>
+          </td>
+        </tr>`;
+      }).join('');
+    }
+    async function toggleActive(id, newVal){
+      await db.collection('questions').doc(id).update({ active:newVal });
+      load();
+    }
+    async function delQ(id){
+      if (!confirm('ลบคำถามนี้?')) return;
+      await db.collection('questions').doc(id).delete();
+      load();
+    }
+    function escapeHtml(s=''){ return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',''':'&#39;'}[m])); }
+    window.toggleActive = toggleActive; window.delQ = delQ;
+  </script>
+</body>
+</html>
