@@ -46,6 +46,7 @@
 
   <script>
     auth.onAuthStateChanged(async user => {
+      console.log("Auth state:", user);
       const guard = document.getElementById('guard');
       const panel = document.getElementById('panel');
 
