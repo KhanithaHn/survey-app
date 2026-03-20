@@ -10,7 +10,14 @@
     button { padding:10px 16px; border:none; background:#111; color:#fff; border-radius:8px; cursor:pointer; }
     .muted{ color:#666; font-size:13px; }
   </style>
-  <script src="assets/firebase.js"></script>
+
+  <!-- ✅ โหลด SDK ของ Firebase ก่อน -->
+  <script src="https://www.gstatic.com/firebasejs/se-app-compat.js</script>
+  <script src="https://www.gstatic.com/firebasejs/9.23uth-compat.js</script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-ript>
+
+  <!-- ✅ แล้วค่อยโหลดสคริปต์ config/initialization ของคุณ -->
+  assets/firebase.js</script>
 </head>
 <body>
   <h1>เข้าสู่ระบบ</h1>
@@ -24,6 +31,7 @@
       const email = document.getElementById('email').value.trim();
       const pw = document.getElementById('pw').value;
       try {
+        // ใช้ตัวแปร auth ที่ประกาศไว้แบบ global ใน assets/firebase.js
         await auth.signInWithEmailAndPassword(email, pw);
         location.href = 'admin.html';
       } catch (e) {
