@@ -48,19 +48,34 @@
   </div>
 
   <script>
-    auth.onAuthStateChanged(async user => {
-       console.log("Auth state:", user);
-  if (user) console.log("Logged in as:", user.email);
-      const guard = document.getElementById('guard');
-      const panel = document.getElementById('panel');
+   auth.onAuthStateChanged(async user => {
+  const guard = document.getElementById('guard');
+  const panel = document.getElementById('panel');
 
-      if (!user) { guard.textContent = 'กรุณาเข้าสู่ระบบก่อน'; return; }
-      if (user.email !== 'khanitha.2641@gmail.com') {
-        guard.textContent = 'บัญชีนี้ไม่มีสิทธิ์เข้าถึง'; return;
-      }
-      guard.style.display = 'none'; panel.style.display = 'block';
-      wire(); load();
-    });
+  if (!user) { 
+    guard.textContent = 'กรุณาเข้าสู่ระบบก่อน'; 
+    return; 
+  }
+
+  try {
+    // ✅ ตรวจสอบสิทธิ์จาก Firestore
+    const doc = await db.collection("admins").doc(user.uid).get();
+    if (!doc.exists) {
+      guard.textContent = 'บัญชีนี้ไม่มีสิทธิ์เข้าถึง'; 
+      return;
+    }
+
+    // ถ้าเจอ document ของ user.uid → แสดงว่าเป็น admin
+    guard.style.display = 'none'; 
+    panel.style.display = 'block';
+    wire(); 
+    load();
+  } catch (err) {
+    console.error("Error checking admin role:", err);
+    guard.textContent = 'เกิดข้อผิดพลาดในการตรวจสอบสิทธิ์';
+  }
+});
+
 
     document.getElementById('logoutBtn').onclick = () => auth.signOut().then(()=>location.href='login.html');
 
