@@ -62,7 +62,7 @@
           `<span class="opt" data-v="${escapeHtml(opt)}">${escapeHtml(opt)}</span>`
         ).join('') + `</div>`;
       } else {
-        html += `<textarea id="ans" rows="4" placeholder="พิมพ์คำตอบของคุณ"></textarea>`;
+        html += `<textarea id="ans" rows="4" placeholder="Enter your answer"></textarea>`;
       }
       app.innerHTML = html;
 
@@ -71,7 +71,7 @@
         opts.forEach(x => x.classList.remove('selected'));
         el.classList.add('selected');
       }));
-      nextBtn.textContent = (current === questions.length - 1) ? 'ส่งคำตอบ' : 'ถัดไป';
+      nextBtn.textContent = (current === questions.length - 1) ? 'Submit the answer' : 'Next';
     }
 
     nextBtn.addEventListener('click', async () => {
