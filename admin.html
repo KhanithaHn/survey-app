@@ -125,7 +125,16 @@
       await db.collection('questions').doc(id).delete();
       load();
     }
-    function escapeHtml(s=''){ return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',''':'&#39;'}[m])); }
+    function escapeHtml(s=''){ 
+  return s.replace(/[&<>"']/g, m => ({
+    '&':'&amp;',
+    '<':'&lt;',
+    '>':'&gt;',
+    '"':'&quot;',
+    "'":'&#39;'
+  }[m])); 
+}
+
     window.toggleActive = toggleActive; window.delQ = delQ;
   </script>
 </body>
