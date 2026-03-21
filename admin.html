@@ -57,14 +57,16 @@
   }
 
   try {
-    // ✅ ตรวจสอบสิทธิ์จาก Firestore
-    const doc = await db.collection("admin").doc(user.uid).get();
+    console.log("Checking UID:", user.uid);
+    const doc = await db.collection("admins").doc(user.uid).get();
+    console.log("Doc exists:", doc.exists);
+    console.log("Doc data:", doc.data());
+
     if (!doc.exists) {
       guard.textContent = 'บัญชีนี้ไม่มีสิทธิ์เข้าถึง'; 
       return;
     }
 
-    // ถ้าเจอ document ของ user.uid → แสดงว่าเป็น admin
     guard.style.display = 'none'; 
     panel.style.display = 'block';
     wire(); 
