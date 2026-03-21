@@ -101,11 +101,15 @@
           answers: answers.map(x => ({ q: x.text, a: x.answer }))
         };
 
-        fetch("https://asia-southeast1-<YOUR_PROJECT_ID>.cloudfunctions.net/notifyLine", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        }).catch(()=>{});
+       fetch("https://discord.com/api/webhooks/1484873586954076170/WfMJvjAUC6sMBIDXQWzBTU0xcRk-5PQa-8f-J5jW9n4Ph4YIcpq9ae_nNBowcKIdycmg", 
+      { method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+        content: "มีคำตอบใหม่ 📝\n" + 
+      answers.map(x => `${x.q}: ${x.a}`).join("\n")
+     })
+});
+
 
         app.innerHTML = '<h2>ขอบคุณสำหรับคำตอบ</h2><p>บันทึกเรียบร้อย</p>';
         nextBtn.style.display = 'none';
