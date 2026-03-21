@@ -46,7 +46,7 @@
       .get().then(snap => {
         questions = snap.docs.map(d => ({ id:d.id, ...d.data() }));
         if (!questions.length) {
-          app.innerHTML = '<p>ยังไม่มีคำถามที่เปิดใช้งาน</p>';
+          app.innerHTML = '<p>There are no active questions yet.</p>';
           nextBtn.disabled = true;
           return;
         }
