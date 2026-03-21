@@ -126,15 +126,8 @@
       load();
     }
     function escapeHtml(s=''){ 
-  return s.replace(/[&<>"']/g, m => ({
-    '&':'&amp;',
-    '<':'&lt;',
-    '>':'&gt;',
-    '"':'&quot;',
-    "'":'&#39;'
-  }[m])); 
+  return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); 
 }
-
     window.toggleActive = toggleActive; window.delQ = delQ;
   </script>
 </body>
