@@ -51,8 +51,11 @@
         alert("ส่งลิงก์รีเซตรหัสผ่านไปที่อีเมลแล้ว");
       })
       .catch(e => {
+        console.log("Error code:", e.code); // ดูค่า error จริงใน console
         if (e.code === "auth/user-not-found") {
           alert("ไม่พบอีเมลนี้ในระบบ กรุณาตรวจสอบอีกครั้ง");
+        } else if (e.code === "auth/invalid-email") {
+          alert("รูปแบบอีเมลไม่ถูกต้อง");
         } else {
           alert(e.message);
         }
