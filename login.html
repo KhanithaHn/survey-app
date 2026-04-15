@@ -47,12 +47,17 @@
         alert("กรุณากรอกอีเมลก่อน");
         return;
       }
-      auth.sendPasswordResetEmail(email)
-        .then(() => {
-          alert("ส่งลิงก์รีเซตรหัสผ่านไปที่อีเมลแล้ว");
-        })
-        .catch(e => alert(e.message));
-    });
+     auth.sendPasswordResetEmail(email)
+  .then(() => {
+    alert("ส่งลิงก์รีเซตรหัสผ่านไปที่อีเมลแล้ว");
+  })
+  .catch(e => {
+    if (e.code === "auth/user-not-found") {
+      alert("ไม่พบอีเมลนี้ในระบบ กรุณาตรวจสอบอีกครั้ง");
+    } else {
+      alert(e.message);
+    }
+  });
   </script>
 </body>
 </html>
