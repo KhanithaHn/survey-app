@@ -7,65 +7,52 @@
   <style>
     body { font-family: system-ui, sans-serif; margin: 28px; max-width: 520px; }
     input { width:100%; padding:10px; margin:6px 0; border:1px solid #ccc; border-radius:8px; }
-    button { padding:10px 16px; border:none; background:#111; color:#fff; border-radius:8px; cursor:pointer; }
+    button { padding:10px 16px; border:none; background:#111; color:#fff; border-radius:8px; cursor:pointer; margin-right:8px; }
     .muted{ color:#666; font-size:13px; }
   </style>
 
-<!-- โหลด Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
-<!-- โหลด config และประกาศ auth/db -->
-<script src="assets/firebase.js"></script>
-
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="assets/firebase.js"></script>
 </head>
 <body>
   <h1>Log in</h1>
   <input id="email" type="email" placeholder="e-mail" />
   <input id="pw" type="password" placeholder="password" />
-  <button id="loginBtn">Login</button>
+  <div>
+    <button id="loginBtn">Login</button>
+    <button id="forgotBtn">Forgot Password</button>
+  </div>
   <p class="muted">* For system owners only</p>
 
   <script>
+    // ปุ่ม Login
     document.getElementById('loginBtn').addEventListener('click', async () => {
       const email = document.getElementById('email').value.trim();
       const pw = document.getElementById('pw').value;
       try {
-        // ใช้ตัวแปร auth ที่ประกาศไว้แบบ global ใน assets/firebase.js
         await auth.signInWithEmailAndPassword(email, pw);
         location.href = 'admin.html';
       } catch (e) {
         alert(e.message);
       }
-   <button id="loginBtn">Login</button>
-<button id="forgotBtn">Forgot Password</button>
-<p class="muted">* For system owners only</p>
+    });
 
-<script>
-  document.getElementById('loginBtn').addEventListener('click', async () => {
-    const email = document.getElementById('email').value.trim();
-    const pw = document.getElementById('pw').value;
-    try {
-      await auth.signInWithEmailAndPassword(email, pw);
-      location.href = 'admin.html';
-    } catch (e) {
-      alert(e.message);
-    }
-  });
-
-  document.getElementById('forgotBtn').addEventListener('click', () => {
-    const email = document.getElementById('email').value.trim();
-    if (!email) {
-      alert("กรุณากรอกอีเมลก่อน");
-      return;
-    }
-    auth.sendPasswordResetEmail(email)
-      .then(() => {
-        alert("ส่งลิงก์รีเซตรหัสผ่านไปที่อีเมลแล้ว");
-      })
-      .catch(e => alert(e.message));
-  });
-</script>
+    // ปุ่ม Forgot Password
+    document.getElementById('forgotBtn').addEventListener('click', () => {
+      const email = document.getElementById('email').value.trim();
+      if (!email) {
+        alert("กรุณากรอกอีเมลก่อน");
+        return;
+      }
+      auth.sendPasswordResetEmail(email)
+        .then(() => {
+          alert("ส่งลิงก์รีเซตรหัสผ่านไปที่อีเมลแล้ว");
+        })
+        .catch(e => alert(e.message));
+    });
+  </script>
 </body>
 </html>
