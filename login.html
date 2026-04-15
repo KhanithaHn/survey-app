@@ -38,7 +38,34 @@
       } catch (e) {
         alert(e.message);
       }
-    });
-  </script>
+   <button id="loginBtn">Login</button>
+<button id="forgotBtn">Forgot Password</button>
+<p class="muted">* For system owners only</p>
+
+<script>
+  document.getElementById('loginBtn').addEventListener('click', async () => {
+    const email = document.getElementById('email').value.trim();
+    const pw = document.getElementById('pw').value;
+    try {
+      await auth.signInWithEmailAndPassword(email, pw);
+      location.href = 'admin.html';
+    } catch (e) {
+      alert(e.message);
+    }
+  });
+
+  document.getElementById('forgotBtn').addEventListener('click', () => {
+    const email = document.getElementById('email').value.trim();
+    if (!email) {
+      alert("กรุณากรอกอีเมลก่อน");
+      return;
+    }
+    auth.sendPasswordResetEmail(email)
+      .then(() => {
+        alert("ส่งลิงก์รีเซตรหัสผ่านไปที่อีเมลแล้ว");
+      })
+      .catch(e => alert(e.message));
+  });
+</script>
 </body>
 </html>
